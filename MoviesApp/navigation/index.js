@@ -27,6 +27,20 @@ const AppNavigation = () => {
           headerLeft: null,
         }}>
         <Stack.Screen name="Movies App" component={screens.Base} />
+        <Stack.Screen
+          options={({route}) => ({
+            title: route.params.data.original_title,
+            headerStyle: {
+              backgroundColor: '#dcdcdc',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+              },
+            },
+          })}
+          screenOptions={{headerStyle: {backgroundColor: '#000000'}}}
+          name="Movies Details"
+          component={screens.MovieDetails}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
