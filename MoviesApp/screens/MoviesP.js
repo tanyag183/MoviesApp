@@ -82,7 +82,7 @@ import {
     };
   
     const renderList = ({item}) => (
-      <View style={{flexDirection: 'row', marginBottom: 10, justifyItems: 'center'}}>
+      <View style={{flexDirection: 'row', marginBottom: 10}}>
         <Image
           style={{width: 100, height: 100}}
           source={{
