@@ -10,34 +10,30 @@ import {
   } from 'react-native';
   import React, {useEffect, useState} from 'react';
   import {Dropdown} from 'react-native-element-dropdown';
-  import {getMovies} from '../network/request';
+  import {getMovies, getTv} from '../network/request';
   import {useNavigation} from '@react-navigation/native';
   
   const dropDownData = [
-    {label: 'Now Playing', value: {id: '1', api: 'now_playing'}},
-    {label: 'Popular', value: {id: '2', api: 'popular'}},
-    {label: 'Top Rated', value: {id: '3', api: 'top_rated'}},
-    {label: 'Upcoming', value: {id: '4', api: 'upcoming'}},
+    {label: 'Popular', value: {id: '1', api: 'popular'}},
+    {label: 'Airing Today', value: {id: '2', api: 'airing_today'}},
+    {label: 'On The Air', value: {id: '3', api: 'on_the_air'}},
   ];
   
-  const Movies = () => {
+  const TvShows = () => {
     const navigation = useNavigation();
     const [value, setValue] = useState(dropDownData[0]);
     const [page, setPage] = useState(1);
     const [data, setData] = useState([]);
     const [isLoad, setLoad] = useState(true);
+    const [loading, setLoading] = useState(false);
   
     const requestAPI = async change => {
-      let pageNo = change ? 1 : page;
-      if (change) {
-        await setData([]);
-        await console.log('data', data);
-      }
-      getMovies({api: value.value.api, pageNo}).then(async res => {
+      await setPage(1);
+      getTv({api: value.value.api, page}).then(async res => {
+        // console.log('res', res);
         if (data?.page !== res?.page) {
           if (change) {
             setData(res.results);
-            await setPage(1);
           } else {
             await setData([...data, ...res.results]);
           }
@@ -50,7 +46,9 @@ import {
     };
   
     useEffect(() => {
+      // console.log('use Effect');
       requestAPI();
+      // console.log('CURRENT PAGE', page);
     }, [page]);
   
     const fetchMoreData = () => {
@@ -75,14 +73,8 @@ import {
       </View>
     );
   
-    const moreDetailsClick = item => {
-      navigation.navigate('Movies Details', {
-        data: item,
-      });
-    };
-  
     const renderList = ({item}) => (
-      <View style={{flexDirection: 'row', marginBottom: 10, justifyItems: 'center'}}>
+      <View style={{flexDirection: 'row', marginBottom: 10}}>
         <Image
           style={{width: 100, height: 100}}
           source={{
@@ -90,13 +82,13 @@ import {
           }}
         />
         <View style={{marginLeft: 15}}>
-          <Text style={{fontSize: 16, fontWeight: 'bold'}}>
-            {item.original_title}
+          <Text style={{fontSize: 20}}>
+            {item?.original_title ? item?.original_title : item?.original_name}
           </Text>
-          <Text style={{fontSize: 12, marginVertical: 4}}>
+          <Text style={{fontSize: 12, marginVertical: 2}}>
             {'Popularity: ' + item.popularity}
           </Text>
-          <Text style={{fontSize: 12, marginBottom: 4}}>
+          <Text style={{fontSize: 12, marginVertical: 2}}>
             {'Release Date: ' + item.release_date}
           </Text>
   
@@ -110,6 +102,11 @@ import {
         </View>
       </View>
     );
+    const moreDetailsClick = item => {
+      navigation.navigate('Movies Details', {
+        data: item,
+      });
+    };
     return (
       <View style={styles.container}>
         <Dropdown
@@ -124,16 +121,15 @@ import {
           valueField="value"
           searchPlaceholder="Search..."
           value={value}
-          onChange={async item => {
-            await setValue(item);
-            requestAPI(true);
+          onChange={item => {
+            setValue(item);
           }}
         />
         <FlatList
           contentContainerStyle={{flexGrow: 1, marginTop: 20}}
           data={data}
           renderItem={renderList}
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={item => item.id}
           ListFooterComponent={renderFooter}
           ListEmptyComponent={renderEmpty}
           onEndReachedThreshold={0.2}
@@ -207,5 +203,5 @@ import {
     },
   });
   
-  export default Movies;
+  export default TvShows;
   
